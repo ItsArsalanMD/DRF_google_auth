@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model, login
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from google_auth.sdk.services import (
     GoogleSdkLoginFlowService,
@@ -100,9 +101,14 @@ class GoogleLoginApi(PublicApi):
             )
 
         login(request, user)
+        
+         # Generate JWT tokens using Simple JWT
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
 
         result = {
-            "id_token": google_tokens.id_token,
+            "refresh_token": str(refresh),
+            "access_token": access_token,
             "user_info": user_info,
         }
 
